@@ -136,8 +136,12 @@ EOF
 function main() {
 local role="$(/usr/share/google/get_metadata_value attributes/dataproc-role)"
 if [[ "${role}" == 'Master' ]] ; then
-  update_apt_get || err "Unable to update apt-get"
-  apt-get install -y flink || err "Unable to install flink"
+  # update_apt_get || err "Unable to update apt-get"
+  # apt-get install -y flink || err "Unable to install flink"
+  wget https://archive.apache.org/dist/flink/flink-1.4.2/flink-1.4.2-bin-hadoop28-scala_2.11.tgz
+  tar xzf flink-*.tgz
+  rm -rf flink-*.tgz
+  mv flink-* ${FLINK_INSTALL_DIR}
   configure_flink || err "Flink configuration failed"
 fi
 }
