@@ -49,14 +49,14 @@ function err() {
   return 1
 }
 
-function update_apt_get() {
-  for ((i = 0; i < 10; i++)); do
-    if apt-get update; then
-      return 0
-    fi
-    sleep 5
-  done
-  return 1
+function install_flink() {
+  readonly local flink_version='flink-1.5.0'
+  readonly local flink_fullname='flink-1.5.0-bin-hadoop28-scala_2.11.tgz'
+  readonly local flink_url="http://www-us.apache.org/dist/flink/${flink_version}/${flink_fullname}"
+  wget ${flink_url}
+  tar -xzvf ${flink_fullname}
+  rm -rf ${flink_fullname}
+  mv ${flink_version} ${FLINK_INSTALL_DIR}
 }
 
 function configure_flink() {
@@ -136,12 +136,7 @@ EOF
 function main() {
 local role="$(/usr/share/google/get_metadata_value attributes/dataproc-role)"
 if [[ "${role}" == 'Master' ]] ; then
-  # update_apt_get || err "Unable to update apt-get"
-  # apt-get install -y flink || err "Unable to install flink"
-  wget https://archive.apache.org/dist/flink/flink-1.4.2/flink-1.4.2-bin-hadoop28-scala_2.11.tgz
-  tar xzf flink-*.tgz
-  rm -rf flink-*.tgz
-  mv flink-* ${FLINK_INSTALL_DIR}
+  install_flink || err "Flink installation failed"
   configure_flink || err "Flink configuration failed"
 fi
 }
